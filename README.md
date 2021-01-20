@@ -1,12 +1,12 @@
 # Prueba técnica backend
 
 Haciendo uso del framework de desarrollo para python [FastAPI](https://fastapi.tiangolo.com/) , desarrollar las siguientes funcionalidades:
-  1. Obtener un listado de <entidad>
-  2. Obtener la información de <entidad> por id
-  3. Actualizar la información de una <entidad>
-  4. Borrar la <entidad>
+  1. Obtener un listado de \<entidad\>.
+  2. Obtener la información de \<entidad\> por id.
+  3. Actualizar la información de una \<entidad\>.
+  4. Borrar la \<entidad\>.
 
-Donde la <entidad> con la que se va a trabajar tiene el siguiente modelo de datos:
+Donde la \<entidad\> con la que se va a trabajar tiene el siguiente modelo de datos:
 
 ```python
 {
