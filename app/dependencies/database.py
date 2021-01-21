@@ -1,6 +1,9 @@
+import logging
+
 from motor.motor_asyncio import AsyncIOMotorClient
 from typing import Optional
 
+from ..logger import logger
 from ..models.dog import DogIn
 
 # por defecto mongo inicia su servicio en el puerto 27017, si se quiere cambiar
@@ -24,6 +27,7 @@ async def get_dogs_from_db(number_of_dogs: Optional[int] = 1):
     out : List[DogOut.dict()]
         Lista con la información del numero dado de documentos
     """
+    logger.info('Getting dogs from db')
     cursor = database.dogs.find({})
 
     # no se puede retornar una coroutine porque FastApi aplica una conversion
@@ -48,6 +52,7 @@ async def get_dog_by_id(_id: str):
     out : DogOut.dict()
         Información de un documento dado
     """
+    logger.info('Getting dog with id %s' % _id)
     dog = await database.dogs.find_one({'id': _id})
 
     # Este campo lo agrega mongo al momento de registrar un nuevo documento
@@ -72,6 +77,7 @@ async def add_dog_to_db(dog: DogIn):
         Información del documento registrado. Se tienen campos nuevos, para
         tiempo de creación del registro y el id en la base de datos
     """
+    logger.info('Adding dog to db')
     result = await database.dogs.insert_one(dog.dict())
 
     # Una vez registrado (para obtener un ObjectId()) ya se conoce el id
@@ -102,6 +108,7 @@ async def update_dog_in_db(_id: str, dog: DogIn):
     out : DogOut.dict()
         información del documento actualizado
     """
+    logger.info('Updating dog with id %s' % _id)
     # Cuando un campo tiene None, es porque el usuario no quiere actualizar
     # dicho campo, por tanto se debe crear un diccionario de nuevos valores
     # que no los considere
@@ -130,6 +137,7 @@ async def delete_dog_from_db(_id: str):
     out : DogOut.dict()
         Información del documento eliminado
     """
+    logger.info('Deleting dog with id %s' % _id)
     dog = await get_dog_by_id(_id)
 
     # el usuario no necesita esperar a que la coroutine se resuelva
