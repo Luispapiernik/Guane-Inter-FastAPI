@@ -1,7 +1,7 @@
 from motor.motor_asyncio import AsyncIOMotorClient
 from typing import Optional, Union
 from pydantic import BaseModel
-from fastapi import Query, Depends
+from fastapi import Query, Depends, HTTPException
 
 from ..logger import logger
 from ..models.dog import DogIn
@@ -150,14 +150,20 @@ class DatabaseManager:
         params = self.get_query_dict(query_fields)
         # Cuando un campo tiene None, es porque el usuario no quiere actualizar
         # dicho campo, por tanto se debe crear un diccionario de nuevos valores
-        # que no los considere
+        # que no los considere. No se puede cambiar el ID
         new_values = {key: value for (key, value) in document.dict().items()
-                      if value is not None}
+                      if value is not None and key != 'ID'}
 
         # se debe esperar, pues la siguiente instrucción requiere que el campo ya
         # este actualizado y no una promesa de que se actualizara
-        await database[self.collection].update_one(params, {'$set': new_values})
+        result = await database[self.collection].update_one(params, {'$set': new_values})
 
+        if not result.raw_result['updatedExisting']:
+            raise HTTPException(status_code=404, detail='Item not found while updating')
+
+        # los query_fields pueden haber cambiado en el proceso de actualización
+        params.update(new_values)
+        query_fields = QueryFields(**params)
         documents = await self.get_documents_from_db(query_fields=query_fields)
         return documents[0]
 
@@ -177,8 +183,9 @@ class DatabaseManager:
             Información del documento eliminado.
         """
         logger.info('Deleting document')
-
         documents = await self.get_documents_from_db(query_fields=query_fields)
+        if not documents:
+            raise HTTPException(status_code=404, detail='Item not found while deleting')
 
         params = self.get_query_dict(query_fields)
         # el usuario no necesita esperar a que la coroutine se resuelva

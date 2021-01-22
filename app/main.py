@@ -1,6 +1,7 @@
 from datetime import timedelta
 from fastapi import FastAPI, Depends, HTTPException, status
 from fastapi.security.oauth2 import OAuth2PasswordRequestForm
+from fastapi.responses import HTMLResponse
 
 from .logger import logger
 from .models.security_models import *
@@ -18,10 +19,19 @@ app.include_router(dog.router)
 app.include_router(user.router)
 
 
-@app.get('/')
-def root():
+@app.get('/', response_class=HTMLResponse)
+async def root():
     logger.info('root')
-    return {'message': 'Hello World!!!'}
+    return """
+        <html>
+            <head>
+                <title>Guane Inter FastAPI</title>
+            </head>
+            <body>
+                <h1>Hello World!!!</h1>
+            </body>
+        </html>
+        """
 
 
 @app.post("/token", response_model=Token)
