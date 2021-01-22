@@ -8,12 +8,14 @@ class BaseDog(BaseModel):
     birth_date: Optional[datetime.datetime]
     picture: Optional[HttpUrl]
     is_adopted: Optional[bool]
+    id_user: Optional[str]
 
 
+# se crea esta clase por consistencia en los nombres
 class DogIn(BaseDog):
     """
     Representación del modelo que se recibe del usuario al momento de registrar
-    un nuevo perro en la base de datos
+    un nuevo dog en la base de datos.
     """
     pass
 
@@ -21,7 +23,7 @@ class DogIn(BaseDog):
 class DogOut(BaseDog):
     """
     Representación del modelo que se le envía al usuario al momento de registrar
-    o hacer una consulta de un perro
+    o hacer una consulta de un perro.
     """
-    id: str
+    ID: str
     created_date: datetime.datetime
