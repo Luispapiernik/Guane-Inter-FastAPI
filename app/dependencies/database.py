@@ -4,9 +4,13 @@ from pydantic import BaseModel
 from fastapi import Query, Depends, HTTPException
 
 from ..logger import logger
+from ..logs.database_messages import *
+
 from ..models.dog import DogIn
 from ..models.user import UserIn
 
+
+logger.info(CONNECTING_TO_DB)
 # por defecto mongo inicia su servicio en el puerto 27017, si se quiere cambiar
 # este numero se debe forzar a lanzar el servicio por otro puerto
 client = AsyncIOMotorClient('localhost', 27017)
@@ -86,7 +90,7 @@ class DatabaseManager:
         out : List[Union[DogOut, UserOut].dict()]
             Lista con la información de los documentos.
         """
-        logger.info('Getting documents')
+        logger.info(GET_DOCUMENT)
         params = self.get_query_dict(query_fields)
         cursor = database[self.collection].find(params)
 
@@ -94,6 +98,8 @@ class DatabaseManager:
         # sobre los resultados que retornan las dependencias para pasarlos a
         # las path functions
         documents = await cursor.to_list(length=query_fields.length)
+
+        logger.info(SUCCESSFUL_GET_DOCUMENT)
         return documents
 
     async def add_document_to_db(self, document: Union[DogIn, UserIn]):
@@ -110,7 +116,7 @@ class DatabaseManager:
         out : Union[DogOut, UserOut].dict()
             Información del documento registrado.
         """
-        logger.info('Adding document')
+        logger.info(ADD_DOCUMENT)
         result = await database[self.collection].insert_one(document.dict())
 
         # Una vez registrado el documento (para obtener un ObjectId()) ya se
@@ -125,6 +131,8 @@ class DatabaseManager:
 
         query = QueryFields(ID=str(result.inserted_id))
         documents = await self.get_documents_from_db(query_fields=query)
+
+        logger.info(SUCCESSFUL_ADD_DOCUMENT)
         return documents[0]
 
     async def update_document_in_db(self, document: Union[DogIn, UserIn],
@@ -145,7 +153,7 @@ class DatabaseManager:
         out : Union[DogOut, UserOut].dict()
             Información del documento actualizado.
         """
-        logger.info('Updating document')
+        logger.info(UPDATE_DOCUMENT)
 
         params = self.get_query_dict(query_fields)
         # Cuando un campo tiene None, es porque el usuario no quiere actualizar
@@ -159,12 +167,15 @@ class DatabaseManager:
         result = await database[self.collection].update_one(params, {'$set': new_values})
 
         if not result.raw_result['updatedExisting']:
-            raise HTTPException(status_code=404, detail='Item not found while updating')
+            logger.error(FAILED_UPDATE_DOCUMENT)
+            raise HTTPException(status_code=404, detail='Item not found while updating.')
 
         # los query_fields pueden haber cambiado en el proceso de actualización
         params.update(new_values)
         query_fields = QueryFields(**params)
         documents = await self.get_documents_from_db(query_fields=query_fields)
+
+        logger.info(SUCCESSFUL_UPDATE_DOCUMENT)
         return documents[0]
 
     async def delete_document_in_db(self, query_fields: QueryFields = Depends()):
@@ -182,12 +193,15 @@ class DatabaseManager:
         out : Union[DogOut, UserOut].dict()
             Información del documento eliminado.
         """
-        logger.info('Deleting document')
+        logger.info(DELETE_DOCUMENT)
         documents = await self.get_documents_from_db(query_fields=query_fields)
         if not documents:
-            raise HTTPException(status_code=404, detail='Item not found while deleting')
+            logger.error(FAILED_DELETE_DOCUMENT)
+            raise HTTPException(status_code=404, detail='Item not found while deleting.')
 
         params = self.get_query_dict(query_fields)
         # el usuario no necesita esperar a que la coroutine se resuelva
         database[self.collection].delete_one(params)
+
+        logger.info(SUCCESSFUL_DELETE_DOCUMENT)
         return documents[0]

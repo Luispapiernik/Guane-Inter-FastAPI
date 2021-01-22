@@ -4,6 +4,8 @@ from fastapi.security import OAuth2PasswordBearer
 from jose import JWTError, jwt
 from passlib.context import CryptContext
 
+from ..logger import logger
+from ..logs.security_messages import *
 from ..models.security_models import *
 
 # openssl rand -hex 32
@@ -23,6 +25,7 @@ users_database = {
 }
 
 
+logger.info(CRYPT_CONTEXT)
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
@@ -154,6 +157,7 @@ async def get_current_user(token: str = Depends(oauth2_scheme)):
     out : UserInDB
         Usuario asociado al token.
     """
+    logger.info(GET_TOKEN)
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail='Could not validate credentials',
@@ -163,13 +167,18 @@ async def get_current_user(token: str = Depends(oauth2_scheme)):
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         username: str = payload.get('sub')
         if username is None:
+            logger.error(NOT_VALIDATE)
             raise credentials_exception
         token_data = TokenData(username=username)
     except JWTError:
+        logger.error(NOT_VALIDATE)
         raise credentials_exception
     user = get_user(users_database, username=token_data.username)
     if user is None:
+        logger.error(NOT_VALIDATE)
         raise credentials_exception
+
+    logger.info(SUCCESSFUL_RECUPERATION)
     return user
 
 
@@ -188,6 +197,9 @@ async def get_current_active_user(current_user: User = Depends(get_current_user)
         En caso de que la verificación falle no se retorna al usuario, en cambio
         se lanza una excepción
     """
+    logger.info(CHECK_USER)
     if current_user.disabled:
+        logger.error(INACTIVE_USER)
         raise HTTPException(status_code=400, detail='Inactive user')
+    logger.info(ACTIVE_USER)
     return current_user
