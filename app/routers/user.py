@@ -4,6 +4,7 @@ from fastapi import Depends, APIRouter
 from ..logger import logger
 from ..models.user import UserOut
 from ..dependencies.database import DatabaseManager
+from ..dependencies.security import get_current_active_user, User
 
 
 router = APIRouter()
@@ -17,13 +18,15 @@ async def read_users(users: List[UserOut] = Depends(database.get_documents_from_
 
 
 @router.post('/users/', response_model=Optional[UserOut])
-async def write_user(user: UserOut = Depends(database.add_document_to_db)):
+async def write_user(user: UserOut = Depends(database.add_document_to_db),
+                     current_user: User = Depends(get_current_active_user)):
     logger.info('write_user')
     return user
 
 
 @router.put('/users/', response_model=Optional[UserOut])
-async def update_user(user: UserOut = Depends(database.update_document_in_db)):
+async def update_user(user: UserOut = Depends(database.update_document_in_db),
+                      current_user: User = Depends(get_current_active_user)):
     logger.info('update_user')
     return user
 

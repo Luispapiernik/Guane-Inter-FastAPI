@@ -4,6 +4,7 @@ from fastapi import Depends, APIRouter
 from ..logger import logger
 from ..models.dog import DogOut
 from ..dependencies.database import DatabaseManager
+from ..dependencies.security import get_current_active_user, User
 
 
 router = APIRouter()
@@ -17,13 +18,15 @@ async def read_dogs(dogs: List[DogOut] = Depends(database.get_documents_from_db)
 
 
 @router.post('/dogs/', response_model=Optional[DogOut])
-async def write_dog(dog: DogOut = Depends(database.add_document_to_db)):
+async def write_dog(dog: DogOut = Depends(database.add_document_to_db),
+                    current_user: User = Depends(get_current_active_user)):
     logger.info('write_dog')
     return dog
 
 
 @router.put('/dogs/', response_model=Optional[DogOut])
-async def update_dog(dog: DogOut = Depends(database.update_document_in_db)):
+async def update_dog(dog: DogOut = Depends(database.update_document_in_db),
+                     current_user: User = Depends(get_current_active_user)):
     logger.info('update_dog')
     return dog
 
