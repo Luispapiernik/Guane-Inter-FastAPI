@@ -20,7 +20,7 @@ async def read_dogs(dogs: List[DogOut] = Depends(database.get_documents_from_db)
 
 
 @router.post('/dogs/', response_model=Optional[DogOut])
-async def write_dog(dog: DogOut = Depends(database.add_document_to_db),
+async def write_dog(dog: DogOut = Depends(database.add_document_to_db_celery),
                     current_user: User = Depends(get_current_active_user)):
     logger.info(WRITE_DOGS)
     return dog

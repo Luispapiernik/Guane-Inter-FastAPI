@@ -9,6 +9,8 @@ from ..logs.database_messages import *
 from ..models.dog import DogIn
 from ..models.user import UserIn
 
+from ..worker.tasks import add_document_to_database
+
 import os
 
 # cuando se esta en desarrollo la variable de entorno debe tomar el valor de
@@ -140,6 +142,18 @@ class DatabaseManager:
 
         logger.info(SUCCESSFUL_ADD_DOCUMENT)
         return documents[0]
+
+    async def add_document_to_db_celery(self, document: Union[DogIn, UserIn]):
+        logger.info(ADD_DOCUMENT)
+        result = add_document_to_database.delay(self.collection, document.dict())
+
+        try:
+            document = result.get()
+        except:
+            logger.error('FAILED TO ADD DOCUMENT TO DATABASE')
+
+        logger.info(SUCCESSFUL_ADD_DOCUMENT)
+        return document
 
     async def update_document_in_db(self, document: Union[DogIn, UserIn],
                                     query_fields: QueryFields = Depends()):

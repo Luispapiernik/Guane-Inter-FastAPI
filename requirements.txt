@@ -8,3 +8,6 @@ python-jose
 cryptography
 passlib
 bcrypt
+redis
+celery
+redis
