@@ -21,19 +21,20 @@ app.include_router(dog.router)
 app.include_router(user.router)
 
 
+root_response = """<html>
+    <head>
+        <title>Guane Inter FastAPI</title>
+    </head>
+    <body>
+        <h1>Hello World!!!</h1>
+    </body>
+</html>"""
+
+
 @app.get('/', response_class=HTMLResponse)
 async def root():
     logger.info(ROOT_POINT)
-    return """
-        <html>
-            <head>
-                <title>Guane Inter FastAPI</title>
-            </head>
-            <body>
-                <h1>Hello World!!!</h1>
-            </body>
-        </html>
-        """
+    return root_response
 
 
 @app.post("/token", response_model=Token)
