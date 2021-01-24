@@ -9,11 +9,17 @@ from ..logs.database_messages import *
 from ..models.dog import DogIn
 from ..models.user import UserIn
 
+import os
+
+# cuando se esta en desarrollo la variable de entorno debe tomar el valor de
+# 'localhost', cuando se piense correr en un docker, deberia ser mongo
+MONGO_HOST = os.getenv('MONGO_HOST', 'mongo')
+logger.info('Mongo host set to: %s' % MONGO_HOST)
 
 logger.info(CONNECTING_TO_DB)
 # por defecto mongo inicia su servicio en el puerto 27017, si se quiere cambiar
 # este numero se debe forzar a lanzar el servicio por otro puerto
-client = AsyncIOMotorClient('localhost', 27017)
+client = AsyncIOMotorClient(host=MONGO_HOST, port=27017)
 database = client.guane_inter_fast_api
 
 
