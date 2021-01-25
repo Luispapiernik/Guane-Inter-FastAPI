@@ -14,10 +14,14 @@ services:
       context: .
       dockerfile: Dockerfile
     container_name: web
-    ports:
-    - '8000:80'
     depends_on:
       - mongo
+    environment:
+      - MONGO_HOST=mongo
+      - RABBIT_HOST=rabbitmq
+      - REDIS_HOST=redis
+    ports:
+    - '8000:80'
   celery:
     build:
       context: ./app/worker/
@@ -26,6 +30,10 @@ services:
     depends_on:
       - rabbit
       - redis
+    environment:
+      - MONGO_HOST=mongo
+      - RABBIT_HOST=rabbitmq
+      - REDIS_HOST=redis
     ports:
     - '5555:5555'
   rabbit:

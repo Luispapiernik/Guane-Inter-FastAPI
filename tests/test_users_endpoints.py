@@ -14,7 +14,7 @@ import requests
 
 # cuando se esta en desarrollo la variable de entorno debe tomar el valor de
 # 'localhost', cuando se piense correr en un docker, deberia ser mongo
-MONGO_HOST = os.getenv('MONGO_HOST', 'localhost')
+MONGO_HOST = os.getenv('MONGO_HOST', 'mongo')
 
 # por defecto mongo inicia su servicio en el puerto 27017, si se quiere cambiar
 # este numero se debe forzar a lanzar el servicio por otro puerto

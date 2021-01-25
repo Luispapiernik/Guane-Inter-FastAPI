@@ -13,8 +13,8 @@ router = APIRouter()
 database = DatabaseManager('dogs')
 
 
-@router.get('/dogs/', response_model=Optional[List[DogOut]])
-async def read_dogs(dogs: List[DogOut] = Depends(database.get_documents_from_db)):
+@router.get('/dogs/', response_model=List[Optional[DogOut]])
+async def read_dogs(dogs: List[Optional[DogOut]] = Depends(database.get_documents_from_db)):
     logger.info(READ_DOGS)
     return dogs
 

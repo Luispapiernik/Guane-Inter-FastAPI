@@ -1,6 +1,9 @@
 from celery import Celery
 import os
 
+# RABBIT_HOST = os.getenv('RABBIT_HOST', 'rabbitmq')
+# REDIS_HOST = os.getenv('REDIS_HOST', 'redis')
+
 RABBIT_HOST = os.getenv('RABBIT_HOST', 'localhost')
 REDIS_HOST = os.getenv('REDIS_HOST', 'localhost')
 
