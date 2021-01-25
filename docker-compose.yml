@@ -1,0 +1,46 @@
+version: '3.8'
+
+services:
+  mongo:
+    image: mongo:4.4.3
+    container_name: db
+    volumes:
+    - mongodb:/data/db
+    - mongodb_config:/data/configdb
+    ports:
+    - '27017:27017'
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: web
+    ports:
+    - '8000:80'
+    depends_on:
+      - mongo
+  celery:
+    build:
+      context: ./app/worker/
+      dockerfile: Dockerfile
+    container_name: celery
+    depends_on:
+      - rabbit
+      - redis
+    ports:
+    - '5555:5555'
+  rabbit:
+    image: rabbitmq:latest
+    container_name: rabbitmq
+    ports:
+      - "5672:5672"
+      - "25672:25672"
+      - "15672:15672"
+  redis:
+    image: redis:latest
+    container_name: redis
+    ports:
+      - "6379:6379"
+
+volumes:
+  mongodb:
+  mongodb_config:

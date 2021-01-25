@@ -26,6 +26,13 @@ async def write_user(user: UserOut = Depends(database.add_document_to_db),
     return user
 
 
+@router.post('/concurrently/users/', response_model=Optional[UserOut])
+async def write_user_concurrently(user: UserOut = Depends(database.add_document_to_db_celery),
+                                  current_user: User = Depends(get_current_active_user)):
+    logger.info(WRITE_USER)
+    return user
+
+
 @router.put('/users/', response_model=Optional[UserOut])
 async def update_user(user: UserOut = Depends(database.update_document_in_db),
                       current_user: User = Depends(get_current_active_user)):

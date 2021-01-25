@@ -9,11 +9,19 @@ from ..logs.database_messages import *
 from ..models.dog import DogIn
 from ..models.user import UserIn
 
+from ..worker.tasks import add_document_to_database
+
+import os
+
+# cuando se esta en desarrollo la variable de entorno debe tomar el valor de
+# 'localhost', cuando se piense correr en un docker, deberia ser mongo
+MONGO_HOST = os.getenv('MONGO_HOST', 'mongo')
+logger.info('Mongo host set to: %s' % MONGO_HOST)
 
 logger.info(CONNECTING_TO_DB)
 # por defecto mongo inicia su servicio en el puerto 27017, si se quiere cambiar
 # este numero se debe forzar a lanzar el servicio por otro puerto
-client = AsyncIOMotorClient('localhost', 27017)
+client = AsyncIOMotorClient(host=MONGO_HOST, port=27017)
 database = client.guane_inter_fast_api
 
 
@@ -99,6 +107,9 @@ class DatabaseManager:
         # las path functions
         documents = await cursor.to_list(length=query_fields.length)
 
+        print('AQUI')
+        print(documents)
+
         logger.info(SUCCESSFUL_GET_DOCUMENT)
         return documents
 
@@ -134,6 +145,18 @@ class DatabaseManager:
 
         logger.info(SUCCESSFUL_ADD_DOCUMENT)
         return documents[0]
+
+    async def add_document_to_db_celery(self, document: Union[DogIn, UserIn]):
+        logger.info(ADD_DOCUMENT)
+        result = add_document_to_database.delay(self.collection, document.dict())
+
+        try:
+            document = result.get()
+        except:
+            logger.error('FAILED TO ADD DOCUMENT TO DATABASE')
+
+        logger.info(SUCCESSFUL_ADD_DOCUMENT)
+        return document
 
     async def update_document_in_db(self, document: Union[DogIn, UserIn],
                                     query_fields: QueryFields = Depends()):

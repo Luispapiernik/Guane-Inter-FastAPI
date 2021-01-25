@@ -26,6 +26,13 @@ async def write_dog(dog: DogOut = Depends(database.add_document_to_db),
     return dog
 
 
+@router.post('/concurrently/dogs/', response_model=Optional[DogOut])
+async def write_dog_concurrently(dog: DogOut = Depends(database.add_document_to_db_celery),
+                                 current_user: User = Depends(get_current_active_user)):
+    logger.info(WRITE_DOGS)
+    return dog
+
+
 @router.put('/dogs/', response_model=Optional[DogOut])
 async def update_dog(dog: DogOut = Depends(database.update_document_in_db),
                      current_user: User = Depends(get_current_active_user)):

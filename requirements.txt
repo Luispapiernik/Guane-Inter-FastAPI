@@ -1,0 +1,13 @@
+uvicorn
+fastapi
+pymongo
+motor
+email-validator
+python-multipart
+python-jose
+cryptography
+passlib
+bcrypt
+redis
+celery
+redis
