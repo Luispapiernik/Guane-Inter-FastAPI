@@ -13,8 +13,8 @@ router = APIRouter()
 database = DatabaseManager('users')
 
 
-@router.get('/users/', response_model=Optional[List[UserOut]])
-async def read_users(users: List[UserOut] = Depends(database.get_documents_from_db)):
+@router.get('/users/', response_model=List[Optional[UserOut]])
+async def read_users(users: List[Optional[UserOut]] = Depends(database.get_documents_from_db)):
     logger.info(READ_USER)
     return users
 

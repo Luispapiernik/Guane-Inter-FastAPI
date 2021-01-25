@@ -15,7 +15,7 @@ import os
 
 # cuando se esta en desarrollo la variable de entorno debe tomar el valor de
 # 'localhost', cuando se piense correr en un docker, deberia ser mongo
-MONGO_HOST = os.getenv('MONGO_HOST', 'localhost')
+MONGO_HOST = os.getenv('MONGO_HOST', 'mongo')
 logger.info('Mongo host set to: %s' % MONGO_HOST)
 
 logger.info(CONNECTING_TO_DB)
@@ -34,7 +34,7 @@ class QueryFields(BaseModel):
     ID: Optional[str] = Query(None, alias='id')
     name: Optional[str] = Query(None)
     last_name: Optional[str] = Query(None)
-    is_adopted: Optional[bool] = Query(None)
+    is_adopted: Optional[bool] = Query(True)
     id_user: Optional[str] = Query(None)
 
 
@@ -107,8 +107,6 @@ class DatabaseManager:
         # las path functions
         documents = await cursor.to_list(length=query_fields.length)
 
-        print('AQUI')
-        print(documents)
         logger.info(SUCCESSFUL_GET_DOCUMENT)
         return documents
 
