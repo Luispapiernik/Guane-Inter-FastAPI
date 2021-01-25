@@ -1,21 +1,15 @@
 from pymongo import MongoClient
-
-from ..logger import logger
-from ..logs.database_messages import *
-
 import os
 
-from .celery import app
+from .celery_app import app
 
 
 @app.task
 def add_document_to_database(collection, document):
     # cuando se esta en desarrollo la variable de entorno debe tomar el valor de
     # 'localhost', cuando se piense correr en un docker, deberia ser mongo
-    MONGO_HOST = os.getenv('MONGO_HOST', 'mongo')
-    logger.info('Mongo host set to: %s' % MONGO_HOST)
+    MONGO_HOST = os.getenv('MONGO_HOST', 'localhost')
 
-    logger.info(CONNECTING_TO_DB)
     # por defecto mongo inicia su servicio en el puerto 27017, si se quiere cambiar
     # este numero se debe forzar a lanzar el servicio por otro puerto
     client = MongoClient(host=MONGO_HOST, port=27017)

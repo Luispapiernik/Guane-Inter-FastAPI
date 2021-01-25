@@ -107,6 +107,9 @@ class DatabaseManager:
         # las path functions
         documents = await cursor.to_list(length=query_fields.length)
 
+        print('AQUI')
+        print(documents)
+
         logger.info(SUCCESSFUL_GET_DOCUMENT)
         return documents
 
