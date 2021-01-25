@@ -15,7 +15,7 @@ import os
 
 # cuando se esta en desarrollo la variable de entorno debe tomar el valor de
 # 'localhost', cuando se piense correr en un docker, deberia ser mongo
-MONGO_HOST = os.getenv('MONGO_HOST', 'mongo')
+MONGO_HOST = os.getenv('MONGO_HOST', 'localhost')
 logger.info('Mongo host set to: %s' % MONGO_HOST)
 
 logger.info(CONNECTING_TO_DB)
@@ -30,7 +30,7 @@ class QueryFields(BaseModel):
     Representación de los queries hechos por el usuario como variables de una
     clase.
     """
-    length: Optional[int] = Query(1)
+    length: Optional[int] = Query(1, gt=0)
     ID: Optional[str] = Query(None, alias='id')
     name: Optional[str] = Query(None)
     last_name: Optional[str] = Query(None)
@@ -106,9 +106,6 @@ class DatabaseManager:
         # sobre los resultados que retornan las dependencias para pasarlos a
         # las path functions
         documents = await cursor.to_list(length=query_fields.length)
-
-        print('AQUI')
-        print(documents)
 
         logger.info(SUCCESSFUL_GET_DOCUMENT)
         return documents

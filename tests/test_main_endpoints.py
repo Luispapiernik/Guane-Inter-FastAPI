@@ -1,5 +1,4 @@
 import unittest
-import json
 
 import logging
 # se desabilita el sistema de logs del API
@@ -37,29 +36,21 @@ class TestMainEndpoints(unittest.TestCase):
                                data={'username': username,
                                      'password': password})
 
-        return response.text
+        return response.json()
 
     def test_perfect_login(self):
-        response = self.make_login('Luispapiernik', 'Luispapiernik')
+        token_data = self.make_login('Luispapiernik', 'Luispapiernik')
 
-        self.assertIsInstance(response, str)
-        token_data = json.loads(response)
         keys = token_data.keys()
-
         self.assertIn('access_token', keys)
         self.assertIn('token_type', keys)
 
         self.assertIsInstance(token_data['access_token'], str)
-        self.assertIsInstance(token_data['token_type'], str)
-
-        self.assertEqual('bearer', token_data['token_type'])
+        self.assertEqual(token_data['token_type'], 'bearer')
 
     def test_login_invalid_credentials(self):
-        response = self.make_login('invalid_user', 'incorrect_password')
+        error_data = self.make_login('invalid_user', 'incorrect_password')
 
-        self.assertIsInstance(response, str)
-        error_data = json.loads(response)
         keys = error_data.keys()
-
         self.assertIn('detail', keys)
         self.assertEqual(error_data['detail'], 'Incorrect username or password')

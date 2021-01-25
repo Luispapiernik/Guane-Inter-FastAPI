@@ -3,8 +3,8 @@ from pydantic import BaseModel, EmailStr
 
 
 class BaseUser(BaseModel):
-    name: Optional[str]
-    last_name: Optional[str]
+    name: str
+    last_name: str
     email: Optional[EmailStr]
 
 

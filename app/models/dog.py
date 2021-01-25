@@ -4,10 +4,10 @@ from pydantic import BaseModel, HttpUrl
 
 
 class BaseDog(BaseModel):
-    name: Optional[str]
+    name: str
     birth_date: Optional[datetime.datetime]
     picture: Optional[HttpUrl]
-    is_adopted: Optional[bool]
+    is_adopted: bool
     id_user: Optional[str]
 
 
